@@ -1,0 +1,10 @@
+import Config
+
+config :hocto, ecto_repos: [Hocto.Repo]
+config :hocto, Hocto.Repo,
+  database: "",
+  username: "",
+  password: "",
+  hostname: ""
+
+# rename this file to :: config.exs
