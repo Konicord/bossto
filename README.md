@@ -99,3 +99,51 @@ iex> {:ok, person} = Hocto.Repo.insert person
 ```
 
 Nice, it's a cool && powerful syntax feature that elixir offers. 
+
+> ### More (test) data 
+```elixir
+$ iex -S mix
+iex> people = [
+  %Friends.Person{first_name: "Koni", last_name: "Konrad", pin: 445},
+  %Friends.Person{first_name: "Alex", last_name: "Alexander", pin: 667},
+]
+Enum.each(people, fn (person) -> Hocto.Repo.insert(person) end)
+```
+The result is going to be:
+```
+INSERT INTO "people" ("first_name","last_name","pin") VALUES ($1,$2,$3) RETURNING "id" ["Koni", "Konrad", 445]
+
+12:24:52.279 [debug] QUERY OK db=1.2ms queue=0.7ms idle=718.4ms
+INSERT INTO "people" ("first_name","last_name","pin") VALUES ($1,$2,$3) RETURNING "id" ["Alex", "Alexander", 667]
+:ok
+```
+
+> ### Fetching records 
+
+```elixir
+iex> Hocto.Person |> Ecto.Query.first
+#Ecto.Query<from p0 in Hocto.Person, order_by: [asc: p0.id], limit: 1>
+```
+
+the same syntax would be 
+```elixir
+require Ecto.Query
+Ecto.Query.from p in Hocto.Person, order_by: [asc: p.id], limit: 1
+```
+
+to execute that, we could do 
+```elixir
+Hocto.Person |> Ecto.Query.first |> Hocto.Repo.one
+```
+Result:
+```
+SELECT p0."id", p0."first_name", p0."last_name", p0."pin" FROM "people" AS p0 
+ORDER BY p0."id" LIMIT 1 []
+%Hocto.Person{
+  __meta__: #Ecto.Schema.Metadata<:loaded, "people">,
+  first_name: "Koni",
+  id: 1,
+  last_name: "Konrad",
+  pin: 445
+}
+```
